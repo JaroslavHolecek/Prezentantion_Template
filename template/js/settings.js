@@ -4,10 +4,12 @@
  * a pokud je zapnuté rememberSettings, uloží se do prohlížeče.
  */
 window.SLIDES_CONFIG = {
-  /* Režim zobrazení: 'present' (prezentační) | 'support' (podpůrný) | 'combined' (kombinovaný) */
+  /* Režim zobrazení: 'present' (prezentační) | 'support' (podpůrný) | 'combined' (kombinovaný)
+     | 'speaker' (řečnický – prezentace v samostatném okně pro projektor, zde aktuální
+     a další snímek, časomíra a podpůrná část; rozvržení sdílí s kombinovaným režimem) */
   viewMode: 'present',
 
-  /* Rozmístění v kombinovaném režimu:
+  /* Rozmístění v kombinovaném a řečnickém režimu:
      'present-left'   – prezentace vlevo, podpůrná část vpravo
      'present-right'  – podpůrná část vlevo, prezentace vpravo
      'present-top'    – prezentace nahoře, podpůrná část dole
@@ -40,6 +42,11 @@ window.SLIDES_CONFIG = {
   /* Ovládací šipky na obrazovce */
   showNavArrows: true,
   navArrowsPosition: 'sides',       // 'sides' – po stranách | 'bottom-right' – vpravo dole | 'bottom-center' – dole uprostřed
+
+  /* Časomíra v řečnickém pohledu: zobrazit, délka přednášky v minutách (1–600).
+     Po načtení je připravená a spouští se ručně. */
+  showTimer: true,
+  timerMinutes: 45,
 
   /* Rychlost plynulého posunu podpůrné části šipkami nahoru/dolů na obrazovce (px za sekundu) */
   autoScrollSpeed: 120,

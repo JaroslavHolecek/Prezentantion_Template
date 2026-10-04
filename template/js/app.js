@@ -2,6 +2,8 @@
  * Šablona přednáškových slidů – interaktivita.
  * Ze zdrojových <section class="slide"> v #slides sestaví prezentační
  * a podpůrnou část, obsluhuje režimy zobrazení, synchronizaci, menu a export.
+ * V řečnickém pohledu otevře druhé okno pro projektor a synchronizuje se s ním
+ * přes postMessage.
  */
 (function () {
   'use strict';
@@ -14,13 +16,17 @@
   const PERSISTED = [
     'viewMode', 'combinedLayout', 'splitRatio', 'switchThreshold',
     'menuButtonOnAllSlides', 'theme', 'showSlideNumbers', 'showNavArrows', 'navArrowsPosition',
-    'exportWhat', 'exportPresentLayout', 'exportSupportLayout', 'exportBothOrientation'
+    'exportWhat', 'exportPresentLayout', 'exportSupportLayout', 'exportBothOrientation',
+    'showTimer', 'timerMinutes'
   ];
-  const MODES = ['present', 'support', 'combined'];
+  const MODES = ['present', 'support', 'combined', 'speaker'];
   const LAYOUTS = ['present-left', 'present-right', 'present-top', 'present-bottom'];
   const NAV_POSITIONS = ['sides', 'bottom-right', 'bottom-center'];
   const THEME_FILES = CFG.themeFiles || { light: 'css/theme-light.css' };
   const STORAGE_KEY = (CFG.storageKey || 'prednaska-nastaveni') + ':' + location.pathname;
+  // Okno pro projektor (otevřené z řečnického pohledu) – jen aktuální snímek.
+  const IS_AUDIENCE = new URLSearchParams(location.search).get('role') === 'audience';
+  const MSG_NS = 'slides-sync';
 
   const defaults = {};
   PERSISTED.forEach(function (k) { defaults[k] = CFG[k]; });
@@ -64,7 +70,7 @@
   }
 
   function save() {
-    if (!CFG.rememberSettings) return;
+    if (!CFG.rememberSettings || IS_AUDIENCE) return;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pick(state))); } catch (e) { /* bez úložiště */ }
   }
 
@@ -72,7 +78,7 @@
 
   function sanitize(s) {
     const num = function (v, d) { v = Number(v); return isFinite(v) ? v : d; };
-    s.viewMode = oneOf(s.viewMode, MODES, 'present');
+    s.viewMode = IS_AUDIENCE ? 'present' : oneOf(s.viewMode, MODES, 'present');
     s.combinedLayout = oneOf(s.combinedLayout, LAYOUTS, 'present-left');
     s.theme = oneOf(s.theme, Object.keys(THEME_FILES), Object.keys(THEME_FILES)[0]);
     s.splitRatio = clamp(num(s.splitRatio, 50), CFG.splitMin || 10, CFG.splitMax || 90);
@@ -85,6 +91,8 @@
     s.exportPresentLayout = oneOf(s.exportPresentLayout, ['one', 'two'], 'one');
     s.exportSupportLayout = oneOf(s.exportSupportLayout, ['newpage', 'continuous'], 'newpage');
     s.exportBothOrientation = oneOf(s.exportBothOrientation, ['landscape', 'portrait'], 'landscape');
+    s.showTimer = s.showTimer !== false;
+    s.timerMinutes = clamp(Math.round(num(s.timerMinutes, 45)), 1, 600);
     return s;
   }
 
@@ -166,11 +174,15 @@
     b.classList.toggle('hide-numbers', !state.showSlideNumbers);
     b.classList.toggle('hide-nav', !state.showNavArrows);
     NAV_POSITIONS.forEach(function (p) { b.classList.toggle('nav-pos-' + p, state.navArrowsPosition === p); });
+    b.classList.toggle('hide-timer', !state.showTimer);
+    b.classList.toggle('role-audience', IS_AUDIENCE);
     if (!state.showNavArrows || !supportVisible()) stopAutoScroll();
     document.documentElement.style.setProperty('--split', state.splitRatio + '%');
     document.documentElement.dataset.theme = state.theme;
     const href = templateUrl(THEME_FILES[state.theme]);
     if (themeLink.href !== href) themeLink.href = href;
+    if (state.viewMode === 'speaker') { renderNext(); updateTimer(); }
+    sendSettings();
   }
 
   /* ---------- Navigace a synchronizace ---------- */
@@ -189,6 +201,8 @@
     pSlides.forEach(function (p, k) { p.classList.toggle('active', k === i); });
     if (opts.source !== 'support') scrollSupportTo(i, opts.smooth !== false);
     if (changed || opts.updateHash) history.replaceState(null, '', '#' + (i + 1));
+    if (state.viewMode === 'speaker') renderNext();
+    if (!opts.remote) post(IS_AUDIENCE ? window.opener : audience, { type: 'goto', index: i });
   }
 
   function scrollSupportTo(i, smooth) {
@@ -351,6 +365,174 @@
     updateAutoScroll();
   }
 
+  /* ---------- Řečnický pohled ---------- */
+
+  /* Pod aktuálním snímkem: zmenšený následující snímek a časomíra. */
+  const speakerBar = el('div', 'speaker-bar');
+  speakerBar.innerHTML =
+    '<div class="sp-next">' +
+      '<div class="sp-head"><span>Další snímek</span>' +
+        '<span class="sp-status"></span>' +
+        '<button type="button" class="btn sp-open" data-sp="open">Otevřít okno pro projektor</button></div>' +
+      '<div class="sp-frame"></div>' +
+    '</div>' +
+    '<div class="sp-timer">' +
+      '<div class="sp-time"><span class="sp-elapsed"></span><span class="sp-cap">od začátku</span></div>' +
+      '<div class="sp-time"><span class="sp-remaining"></span><span class="sp-cap">do konce</span></div>' +
+      '<div class="sp-controls">' +
+        '<button type="button" class="btn primary" data-sp="toggle">Spustit</button>' +
+        '<button type="button" class="btn" data-sp="reset">Restartovat</button>' +
+      '</div>' +
+    '</div>';
+  presentPane.append(speakerBar);
+  const spFrame = speakerBar.querySelector('.sp-frame');
+  const spTimer = speakerBar.querySelector('.sp-timer');
+  const spToggle = speakerBar.querySelector('[data-sp="toggle"]');
+
+  speakerBar.addEventListener('click', function (e) {
+    const b = e.target.closest('[data-sp]');
+    if (!b) return;
+    if (b.dataset.sp === 'open') openAudience();
+    else if (b.dataset.sp === 'toggle') toggleTimer();
+    else resetTimer();
+    b.blur(); // šipky na klávesnici dál ovládají snímky
+  });
+
+  function renderNext() {
+    spFrame.textContent = '';
+    if (current + 1 >= total) { spFrame.append(el('p', 'sp-end', 'Konec prezentace')); return; }
+    const c = pSlides[current + 1].cloneNode(true);
+    c.classList.add('active');
+    c.removeAttribute('aria-label');
+    c.setAttribute('aria-hidden', 'true');
+    c.querySelectorAll('.menu-btn').forEach(function (b) { b.remove(); });
+    spFrame.append(c);
+  }
+
+  /* Časomíra – po načtení je připravená, spouští se ručně. */
+  let timerElapsed = 0; // ms naměřené před posledním spuštěním
+  let timerStart = 0;   // Date.now() při spuštění, 0 = pozastaveno
+  let timerTick = 0;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function fmtTime(sec) {
+    const neg = sec < 0;
+    sec = Math.abs(sec);
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor(sec % 3600 / 60);
+    return (neg ? '−' : '') + (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(sec % 60);
+  }
+
+  function updateTimer() {
+    const elapsed = Math.floor((timerElapsed + (timerStart ? Date.now() - timerStart : 0)) / 1000);
+    const remaining = state.timerMinutes * 60 - elapsed;
+    speakerBar.querySelector('.sp-elapsed').textContent = fmtTime(elapsed);
+    speakerBar.querySelector('.sp-remaining').textContent = fmtTime(remaining);
+    spTimer.classList.toggle('over', remaining < 0);
+    spTimer.classList.toggle('running', !!timerStart);
+    spToggle.textContent = timerStart ? 'Pozastavit' : (elapsed ? 'Pokračovat' : 'Spustit');
+  }
+
+  function toggleTimer() {
+    if (timerStart) {
+      timerElapsed += Date.now() - timerStart;
+      timerStart = 0;
+      clearInterval(timerTick);
+    } else {
+      timerStart = Date.now();
+      timerTick = setInterval(updateTimer, 250);
+    }
+    updateTimer();
+  }
+
+  function resetTimer() {
+    timerElapsed = 0;
+    timerStart = 0;
+    clearInterval(timerTick);
+    updateTimer();
+  }
+
+  /* Okno pro projektor: hlavní okno drží odkaz na něj (audience),
+     okno pro projektor posílá zprávy svému window.opener. */
+  let audience = null;
+
+  function post(win, msg) {
+    if (!win || win.closed) return;
+    msg.ns = MSG_NS;
+    try { win.postMessage(msg, '*'); } catch (e) { /* okno už neexistuje */ }
+  }
+
+  function sendSettings() {
+    if (IS_AUDIENCE) return;
+    post(audience, {
+      type: 'settings',
+      settings: {
+        theme: state.theme, showSlideNumbers: state.showSlideNumbers,
+        showNavArrows: state.showNavArrows, navArrowsPosition: state.navArrowsPosition
+      }
+    });
+  }
+
+  function openAudience() {
+    if (IS_AUDIENCE) return;
+    if (audience && !audience.closed) { audience.focus(); return; }
+    const u = new URL(location.href);
+    u.searchParams.set('role', 'audience');
+    u.hash = '#' + (current + 1);
+    audience = window.open(u.href, 'slides-audience', 'popup,width=1024,height=724');
+    updateAudienceUi();
+  }
+
+  function closeAudience() {
+    if (audience && !audience.closed) audience.close();
+    audience = null;
+    updateAudienceUi();
+  }
+
+  function updateAudienceUi() {
+    const connected = !!(audience && !audience.closed);
+    speakerBar.querySelector('.sp-status').textContent = connected ? '● projektor připojen' : '';
+    speakerBar.querySelector('.sp-open').hidden = connected;
+  }
+
+  window.addEventListener('message', function (e) {
+    const d = e.data;
+    if (!d || d.ns !== MSG_NS) return;
+    if (IS_AUDIENCE) {
+      if (e.source !== window.opener) return;
+      if (d.type === 'goto') goTo(d.index, { remote: true });
+      else if (d.type === 'settings') {
+        Object.assign(state, pick(d.settings));
+        sanitize(state);
+        applySettings();
+      }
+    } else if (d.type === 'hello') {
+      // Okno pro projektor se ozve po načtení a pak pravidelně – i po obnovení hlavního okna.
+      const isNew = audience !== e.source;
+      audience = e.source;
+      if (isNew || d.first) {
+        post(audience, { type: 'goto', index: current });
+        sendSettings();
+        updateAudienceUi();
+      }
+    } else if (d.type === 'goto' && e.source === audience) {
+      goTo(d.index, { remote: true });
+    }
+  });
+
+  if (IS_AUDIENCE) {
+    post(window.opener, { type: 'hello', first: true });
+    setInterval(function () { post(window.opener, { type: 'hello' }); }, 2000);
+    // Dvojklik přepne celou obrazovku (na projektoru).
+    document.addEventListener('dblclick', function () {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {});
+    });
+  } else {
+    setInterval(updateAudienceUi, 1000);
+  }
+
   /* ---------- Klávesnice ---------- */
 
   document.addEventListener('keydown', function (e) {
@@ -387,6 +569,7 @@
         e.preventDefault(); stopAutoScroll(); goTo(total - 1); break;
       case 'm':
       case 'M':
+        if (IS_AUDIENCE) break;
         e.preventDefault(); openMenu(); break;
     }
   });
@@ -399,6 +582,7 @@
   /* ---------- Menu ---------- */
 
   function openMenu() {
+    if (IS_AUDIENCE) return;
     syncForm();
     if (!menu.open) menu.showModal();
   }
@@ -410,14 +594,16 @@
       if (!input.name || !(input.name in state)) return;
       if (input.type === 'radio') input.checked = String(state[input.name]) === input.value;
       else if (input.type === 'checkbox') input.checked = !!state[input.name];
-      else if (input.type === 'range') input.value = state[input.name];
+      else if (input.type === 'range' || input.type === 'number') input.value = state[input.name];
     });
     updateMenuUi();
   }
 
   function updateMenuUi() {
-    form.querySelector('[data-requires="combined"]').disabled = state.viewMode !== 'combined';
-    form.querySelector('[data-requires="nav"]').disabled = !state.showNavArrows;
+    form.querySelectorAll('[data-requires]').forEach(function (fs) {
+      const req = fs.dataset.requires.split(' ');
+      fs.disabled = req[0] === 'nav' ? !state.showNavArrows : req.indexOf(state.viewMode) < 0;
+    });
     form.querySelectorAll('[data-export]').forEach(function (fs) {
       fs.disabled = fs.dataset.export.split(' ').indexOf(state.exportWhat) < 0;
     });
@@ -434,9 +620,13 @@
     if (input.type === 'radio') { if (!input.checked) return; state[input.name] = input.value; }
     else if (input.type === 'checkbox') state[input.name] = input.checked;
     else if (input.type === 'range') state[input.name] = Number(input.value);
+    else if (input.type === 'number') { state[input.name] = Number(input.value); sanitize(state); }
 
     applySettings();
-    if (input.name === 'viewMode') scrollSupportTo(current, false);
+    if (input.name === 'viewMode') {
+      scrollSupportTo(current, false);
+      if (state.viewMode === 'speaker') openAudience(); else closeAudience();
+    }
     updateMenuUi();
     save();
   });
@@ -447,11 +637,13 @@
     if (!action) return;
     if (action.dataset.action === 'close') closeMenu();
     else if (action.dataset.action === 'export') exportPrint();
+    else if (action.dataset.action === 'open-audience') openAudience();
     else if (action.dataset.action === 'reset') {
       Object.assign(state, sanitize(Object.assign({}, defaults)));
       try { localStorage.removeItem(STORAGE_KEY); } catch (err) { /* bez úložiště */ }
       applySettings();
       scrollSupportTo(current, false);
+      if (state.viewMode !== 'speaker') closeAudience();
       syncForm();
     }
   });
@@ -508,13 +700,24 @@
       desc = 'Podpůrná část + zmenšený prezentační snímek';
     }
 
-    const themeFile = THEME_FILES[CFG.printTheme] || THEME_FILES[state.theme];
-    const html = '<!doctype html>\n<html lang="' + (document.documentElement.lang || 'cs') + '" class="print-html">\n<head>\n' +
+    const printTheme = THEME_FILES[CFG.printTheme] ? CFG.printTheme : state.theme;
+    const themeFile = THEME_FILES[printTheme];
+    // Vlastní styly prezentace (vše v <head> kromě base.css a stylu barevného režimu).
+    const baseHref = templateUrl('css/base.css');
+    const extraCss = Array.prototype.map.call(
+      document.querySelectorAll('head link[rel="stylesheet"]:not(#theme-css), head style'),
+      function (n) {
+        if (n.tagName === 'STYLE') return '<style>' + n.textContent + '</style>\n';
+        return n.href === baseHref ? '' : '<link rel="stylesheet" href="' + escapeHtml(n.href) + '">\n';
+      }).join('');
+    const html = '<!doctype html>\n<html lang="' + (document.documentElement.lang || 'cs') +
+      '" class="print-html" data-theme="' + escapeHtml(printTheme) + '">\n<head>\n' +
       '<meta charset="utf-8">\n' +
       '<base href="' + escapeHtml(document.baseURI) + '">\n' +
       '<title>' + escapeHtml('Tisk – ' + document.title) + '</title>\n' +
-      '<link rel="stylesheet" href="' + escapeHtml(templateUrl('css/base.css')) + '">\n' +
+      '<link rel="stylesheet" href="' + escapeHtml(baseHref) + '">\n' +
       '<link rel="stylesheet" href="' + escapeHtml(templateUrl(themeFile)) + '">\n' +
+      extraCss +
       '<link rel="stylesheet" href="' + escapeHtml(templateUrl('css/print.css')) + '">\n' +
       '<style>' + pageCss + '</style>\n</head>\n' +
       '<body class="print-doc' + (state.showSlideNumbers ? '' : ' hide-numbers') + '">\n' +
@@ -539,7 +742,7 @@
   applySettings();
   const fromHash = parseInt(location.hash.slice(1), 10);
   current = fromHash >= 1 && fromHash <= total ? fromHash - 1 : 0;
-  goTo(current, { smooth: false, updateHash: false });
+  goTo(current, { smooth: false, updateHash: false, remote: true });
 
   // Při změně velikosti (okno, rozdělení, načtení obrázků) zachovat polohu v podpůrné části.
   if ('ResizeObserver' in window) {

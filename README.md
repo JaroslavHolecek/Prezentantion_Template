@@ -11,7 +11,7 @@ Každý snímek má dvě části:
 
 ## Vlastnosti
 
-- **Tři režimy zobrazení**
+- **Čtyři režimy zobrazení**
   - *Prezentační* – na obrazovce je vždy jeden celý snímek.
   - *Podpůrný* – plynule scrollovací text všech snímků za sebou.
   - *Kombinovaný* – obrazovka rozdělená na prezentační a podpůrnou část
@@ -19,6 +19,10 @@ Každý snímek má dvě části:
     Obě části jsou synchronizované: při přechodu na další snímek se podpůrná
     část posune na jeho začátek a při scrollování podpůrné části se přepíná
     prezentační snímek.
+  - *Řečnický* – prezentace se otevře v samostatném okně pro projektor (jen
+    aktuální snímek). V hlavním okně je rozvržení jako v kombinovaném režimu,
+    navíc s náhledem dalšího snímku a časomírou. Obě okna jsou synchronizovaná
+    oběma směry.
 - **Barevné režimy** – světlý, tmavý a vysoký kontrast.
 - **Ovládací šipky na obrazovce** – volitelné, s nastavitelným umístěním;
   v podpůrné části šipky nahoru/dolů plynule posouvají text (najetím myší,
@@ -46,6 +50,21 @@ Každý snímek má dvě části:
 
 Menu lze otevřít i tlačítkem vlevo dole na prvním snímku (případně na každém
 snímku, pokud je to v menu zapnuté).
+
+## Řečnický pohled (projektor + monitor)
+
+1. V menu (<kbd>M</kbd>) zvolte režim **Řečnický**. Otevře se nové okno jen
+   s prezentačními snímky. Pokud ho prohlížeč zablokuje, povolte vyskakovací
+   okna nebo použijte tlačítko **Otevřít okno pro projektor**.
+2. Okno přetáhněte na projektor a dvojklikem ho přepněte na celou obrazovku.
+3. Prezentaci ovládejte z hlavního okna. Šipky fungují i v okně na projektoru
+   a obě okna zůstávají synchronizovaná.
+
+V hlavním okně je pod aktuálním snímkem menší náhled dalšího snímku a
+časomíra. Ukazuje čas od začátku (méně výrazně) a čas do konce. Po načtení je
+připravená a spouští se ručně tlačítkem **Spustit**. Lze ji pozastavit nebo
+restartovat. Délku přednášky a zobrazení časomíry nastavíte v menu.
+Rozvržení a ostatní nastavení sdílí řečnický pohled s kombinovaným režimem.
 
 ## Struktura projektu
 
@@ -133,6 +152,8 @@ Většinu z nich lze měnit i za běhu v menu. Nejdůležitější:
 | `menuButtonOnAllSlides` | `false` | tlačítko menu na každém snímku |
 | `showNavArrows` | `true` | zobrazit ovládací šipky |
 | `navArrowsPosition` | `'sides'` | umístění šipek: `sides`, `bottom-right`, `bottom-center` |
+| `showTimer` | `true` | zobrazit časomíru v řečnickém pohledu |
+| `timerMinutes` | `45` | délka přednášky pro odpočet časomíry (min) |
 | `autoScrollSpeed` | `120` | rychlost plynulého posunu podpůrné části (px/s) |
 | `scrollStep` | `80` | posun podpůrné části klávesami ↑ ↓ (px) |
 | `printTheme` | `'light'` | barevný režim při tisku (`null` = aktuální) |

@@ -167,11 +167,12 @@
         <label class="opt"><input type="radio" name="viewMode" value="present"> Prezentační</label>
         <label class="opt"><input type="radio" name="viewMode" value="support"> Podpůrný</label>
         <label class="opt"><input type="radio" name="viewMode" value="combined"> Kombinovaný</label>
+        <label class="opt"><input type="radio" name="viewMode" value="speaker"> Řečnický</label>
       </div>
     </fieldset>
 
-    <fieldset data-requires="combined">
-      <legend>Kombinovaný režim</legend>
+    <fieldset data-requires="combined speaker">
+      <legend>Kombinovaný a řečnický režim</legend>
       <div class="opt-row">
         <label class="opt"><input type="radio" name="combinedLayout" value="present-left"> Prezentace vlevo</label>
         <label class="opt"><input type="radio" name="combinedLayout" value="present-right"> Prezentace vpravo</label>
@@ -186,6 +187,18 @@
         <span>Přepnout snímek, když další podpůrný snímek zabírá odspodu okna <output for="switch-threshold">25 %</output></span>
         <input type="range" id="switch-threshold" name="switchThreshold" min="0" max="100" step="1">
       </label>
+    </fieldset>
+
+    <fieldset data-requires="speaker">
+      <legend>Řečnický pohled</legend>
+      <div class="opt-col">
+        <label class="opt"><input type="checkbox" name="showTimer"> Zobrazit časomíru</label>
+        <label class="opt">Délka přednášky <input type="number" name="timerMinutes" min="1" max="600" step="1"> min</label>
+      </div>
+      <div class="menu-actions">
+        <span class="menu-hint" style="margin: 0">Prezentace se otevře v samostatném okně – přetáhněte ho na projektor (dvojklik = celá obrazovka).</span>
+        <button type="button" class="btn" data-action="open-audience">Otevřít okno pro projektor</button>
+      </div>
     </fieldset>
 
     <fieldset>

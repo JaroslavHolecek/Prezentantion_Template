@@ -54,15 +54,16 @@ body {
 .mode-present .support-pane { display: none; }
 .mode-support .present-pane { display: none; }
 
-.mode-combined .present-pane { flex: 0 0 var(--split, 50%); }
-.mode-combined.layout-present-right #app { flex-direction: row-reverse; }
-.mode-combined.layout-present-top #app { flex-direction: column; }
-.mode-combined.layout-present-bottom #app { flex-direction: column-reverse; }
+/* kombinovaný a řečnický režim sdílejí rozvržení */
+.mode-combined .present-pane, .mode-speaker .present-pane { flex: 0 0 var(--split, 50%); }
+.mode-combined.layout-present-right #app, .mode-speaker.layout-present-right #app { flex-direction: row-reverse; }
+.mode-combined.layout-present-top #app, .mode-speaker.layout-present-top #app { flex-direction: column; }
+.mode-combined.layout-present-bottom #app, .mode-speaker.layout-present-bottom #app { flex-direction: column-reverse; }
 
-.mode-combined.layout-present-left .present-pane { border-right: 1px solid var(--border); }
-.mode-combined.layout-present-right .present-pane { border-left: 1px solid var(--border); }
-.mode-combined.layout-present-top .present-pane { border-bottom: 1px solid var(--border); }
-.mode-combined.layout-present-bottom .present-pane { border-top: 1px solid var(--border); }
+.mode-combined.layout-present-left .present-pane, .mode-speaker.layout-present-left .present-pane { border-right: 1px solid var(--border); }
+.mode-combined.layout-present-right .present-pane, .mode-speaker.layout-present-right .present-pane { border-left: 1px solid var(--border); }
+.mode-combined.layout-present-top .present-pane, .mode-speaker.layout-present-top .present-pane { border-bottom: 1px solid var(--border); }
+.mode-combined.layout-present-bottom .present-pane, .mode-speaker.layout-present-bottom .present-pane { border-top: 1px solid var(--border); }
 
 /* ---------- Prezentační snímek (A4 na šířku) ---------- */
 
@@ -127,6 +128,68 @@ body {
 }
 
 .p-slide:not(.has-header) .p-body { padding-top: max(1.4em, var(--bar-h)); }
+
+/* ---------- Řečnický pohled ---------- */
+
+/* Aktuální snímek nahoře, pod ním zmenšený další snímek a časomíra. */
+.mode-speaker .present-pane { flex-direction: column; gap: 2.5cqh; }
+.mode-speaker #present-pane > .p-slide { --sw: min(96cqw, 58cqh * 297 / 210); }
+
+.speaker-bar { display: none; }
+
+.mode-speaker .speaker-bar {
+  order: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2cqw;
+  width: min(96cqw, 58cqh * 297 / 210);
+  height: 34cqh;
+  font-size: 13px;
+}
+
+.sp-next { display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 0; }
+.sp-head { display: flex; align-items: center; gap: 10px; color: var(--muted); white-space: nowrap; }
+.sp-status { margin-left: auto; }
+.sp-head .btn { margin-left: auto; padding: 2px 10px; font-size: 12px; }
+.sp-head .btn[hidden] { display: none; }
+
+.sp-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+
+.sp-end { margin: 0; color: var(--muted); }
+
+.sp-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2cqh;
+  min-height: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--slide-bg);
+  color: var(--slide-fg);
+  container-type: size;
+}
+
+.hide-timer .sp-timer { visibility: hidden; }
+.sp-time { display: flex; align-items: baseline; gap: 0.6em; font-variant-numeric: tabular-nums; }
+.sp-cap { color: var(--muted); font-size: 12px; }
+.sp-elapsed { color: var(--muted); font-size: min(12cqh, 7cqw); }
+.sp-remaining { font-size: min(26cqh, 15cqw); font-weight: 600; line-height: 1.05; }
+.sp-timer.over .sp-remaining { color: var(--timer-over, #d0342c); }
+.sp-controls { display: flex; gap: 8px; }
+.sp-controls .btn { padding: 4px 12px; font-size: 13px; }
+
+/* Okno pro projektor: bez tlačítka menu */
+.role-audience .menu-btn { display: none !important; }
 
 /* ---------- Tlačítko menu ---------- */
 
@@ -387,6 +450,16 @@ kbd, code {
 .opt input { margin: 0; accent-color: var(--accent); }
 
 .range { display: block; margin-top: 12px; }
+
+.menu input[type="number"] {
+  width: 5em;
+  padding: 3px 6px;
+  border: 1px solid var(--btn-border);
+  border-radius: 6px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font: inherit;
+}
 .range span { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
 .range output { font-variant-numeric: tabular-nums; font-weight: 600; }
 .range input { width: 100%; margin: 6px 0 0; accent-color: var(--accent); }

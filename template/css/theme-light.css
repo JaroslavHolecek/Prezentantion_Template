@@ -1,0 +1,40 @@
+/* Světlý režim */
+:root {
+  color-scheme: light;
+
+  --bg: #eef0f3;
+  --fg: #1d2330;
+  --border: #d3d9e2;
+  --focus: #1f6feb;
+
+  --accent: #1f6feb;
+  --accent-fg: #ffffff;
+  --muted: #5b6474;
+
+  /* prezentační část */
+  --pane-bg: #cfd4dc;
+  --slide-bg: #ffffff;
+  --slide-fg: #1d2330;
+  --slide-edge: rgba(0, 0, 0, 0.08);
+  --title-fg: #10294a;
+  --bar-bg: #16365c;
+  --bar-fg: #ffffff;
+  --bar-sub: rgba(255, 255, 255, 0.62);
+  --bar-line: transparent;
+  --number-fg: #7a8394;
+
+  /* podpůrná část */
+  --support-pane-bg: #e4e7ec;
+  --support-bg: #fcfcfa;
+  --support-fg: #262b35;
+  --support-sep: #c4cad4;
+  --note-bg: #eef4ff;
+  --code-bg: #f1f3f6;
+
+  /* menu a tlačítka */
+  --menu-bg: #ffffff;
+  --menu-fg: #1d2330;
+  --btn-bg: #ffffff;
+  --btn-fg: #1d2330;
+  --btn-border: #c4cad4;
+}

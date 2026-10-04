@@ -1,0 +1,136 @@
+/*
+ * Styly stránky pro tisk (otevírá se z menu → Export pro tisk).
+ * Rozměry stránek jsou A4; velikost @page doplňuje js/app.js podle zvolené varianty.
+ */
+
+html.print-html, html.print-html body { height: auto; overflow: visible; }
+
+.print-doc {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.print-doc .p-slide { display: flex; box-shadow: none; }
+
+.print-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #1d2330;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.print-toolbar button {
+  flex: 0 0 auto;
+  padding: 7px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: #1f6feb;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- Stránky s pevnou velikostí ---------- */
+
+.sheet {
+  position: relative;
+  overflow: hidden;
+  break-after: page;
+  background: var(--slide-bg);
+}
+
+.sheet:last-child { break-after: auto; }
+
+/* jeden snímek na stránku, A4 na šířku */
+.sheet.landscape { width: 297mm; height: 210mm; }
+.sheet.landscape .p-slide { --sw: 297mm; }
+
+/* dva snímky na stránku, A4 na výšku */
+.sheet.portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 210mm;
+  height: 297mm;
+  padding: 12mm 10mm;
+  background: var(--support-bg);
+}
+
+.sheet.portrait .p-slide { --sw: 190mm; outline: 0.25mm solid var(--support-sep); }
+
+/* snímek otočený o 90° přes celou stránku A4 na výšku */
+.sheet.rotated { width: 210mm; height: 297mm; break-before: page; }
+.sheet.rotated .p-slide {
+  --sw: 297mm;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  transform: translateX(210mm) rotate(90deg);
+}
+
+/* ---------- Plynulý tok (podpůrná část) ---------- */
+
+.flow {
+  width: 210mm;
+  padding: 15mm;
+  background: var(--support-bg);
+  color: var(--support-fg);
+}
+
+.flow .s-page {
+  --pw: 180mm;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.flow.continuous .group + .group {
+  margin-top: 8mm;
+  padding-top: 6mm;
+  border-top: 0.3mm dashed var(--support-sep);
+}
+
+.flow.newpage .group + .group { break-before: page; }
+
+.slide-below { margin-top: 6mm; break-inside: avoid; }
+.slide-below .p-slide { --sw: 180mm; outline: 0.25mm solid var(--support-sep); }
+
+/* podpůrná část + otočené snímky: stránka bez okrajů, okraje drží s-page */
+.flow.rotated-mode { padding: 0; }
+.flow.rotated-mode .s-page {
+  padding: 15mm;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.flow.rotated-mode .group + .group { break-before: page; }
+
+/* ---------- Náhled na obrazovce ---------- */
+
+@media screen {
+  .print-doc { padding: 64px 0 32px; background: #6b7280; }
+  .sheet, .flow { margin: 0 auto 24px; box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35); }
+  .flow .sheet.rotated { margin: 8mm 0 0; box-shadow: 0 0 0 0.3mm var(--support-sep); }
+}
+
+/* ---------- Tisk ---------- */
+
+@media print {
+  .print-toolbar { display: none; }
+  .print-doc { padding: 0; background: none; }
+  .flow { width: auto; padding: 0; }
+  .flow.rotated-mode { width: 210mm; }
+}

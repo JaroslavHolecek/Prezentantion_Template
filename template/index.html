@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Šablona přednášky</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/theme-light.css" id="theme-css">
+</head>
+<body>
+
+<!--
+  ZDROJOVÉ SNÍMKY
+  Každý snímek je <section class="slide"> se dvěma částmi:
+    <div class="present">  – prezentační část (A4 na šířku, promítá se)
+    <div class="support">  – podpůrná část (A4 na výšku, komentář ke čtení)
+
+  Atributy snímku:
+    data-title="…"             – název snímku
+    data-subtitle="…"          – podnázev snímku
+    data-show-header="true"    – zobrazit název a podnázev v liště nahoře (jinak "false")
+
+  Titulní snímek má navíc třídu "title-slide".
+  Užitečné třídy obsahu: .bullets (odrážky), .fig (obrázek s popiskem), .split (dva sloupce),
+  .note (zvýrazněná poznámka v podpůrné části).
+-->
+<main id="slides">
+
+  <!-- 1) Titulní snímek -->
+  <section class="slide title-slide" data-title="Úvod" data-show-header="false">
+    <div class="present">
+      <div class="title-layout">
+        <div>
+          <h1 class="t-title">Název přednášky</h1>
+          <p class="t-subtitle">Podnázev přednášky – téma nebo kontext</p>
+          <p class="t-author">Jméno Autora</p>
+          <p class="t-date">4. října 2026</p>
+        </div>
+        <img class="t-image" src="img/titulni.svg" alt="Ilustrace promítacího plátna">
+      </div>
+    </div>
+    <div class="support">
+      <h2>Vítejte</h2>
+      <p>Toto je podpůrná část titulního snímku. Slouží jako komentář ke čtení – můžete sem napsat
+        úvod, cíle přednášky nebo doporučenou literaturu.</p>
+      <h3>Jak šablonu ovládat</h3>
+      <ul>
+        <li><kbd>←</kbd> <kbd>→</kbd> – předchozí / další snímek</li>
+        <li><kbd>↑</kbd> <kbd>↓</kbd> – plynulý posun podpůrné části</li>
+        <li><kbd>M</kbd> – otevře a zavře menu (nebo tlačítko vlevo dole), <kbd>Esc</kbd> zavře menu</li>
+      </ul>
+      <p>Na obrazovce jsou také nenápadné šipky. Šipky vlevo a vpravo přepínají snímky. V podpůrné
+        části jsou navíc šipky nahoru a dolů: po najetí myší se text pomalu posouvá, po kliknutí
+        zůstane posun zapnutý (vypnete ho dalším kliknutím).</p>
+      <p>V menu lze přepnout režim zobrazení (prezentační, podpůrný, kombinovaný), barevný režim
+        a připravit prezentaci k tisku.</p>
+      <div class="note">V kombinovaném režimu jsou obě části synchronizované: při přechodu na další
+        snímek se podpůrná část posune na jeho začátek, při scrollování podpůrné části se přepíná
+        prezentační snímek.</div>
+    </div>
+  </section>
+
+  <!-- 2) Snímek s bodovým textem (s lištou) -->
+  <section class="slide" data-title="Bodový text" data-subtitle="Ukázka odrážek" data-show-header="true">
+    <div class="present">
+      <ul class="bullets">
+        <li>První hlavní myšlenka snímku</li>
+        <li>Druhá myšlenka s doplňujícími body
+          <ul>
+            <li>podrobnost první</li>
+            <li>podrobnost druhá</li>
+          </ul>
+        </li>
+        <li>Třetí myšlenka – krátce a výstižně</li>
+        <li>Shrnutí a přechod k dalšímu tématu</li>
+      </ul>
+    </div>
+    <div class="support">
+      <h2>Bodový text</h2>
+      <p>Na promítaném snímku jsou jen stručné body. Podrobný výklad patří sem, do podpůrné části,
+        kterou si posluchači mohou přečíst během přednášky nebo po ní.</p>
+      <h3>První hlavní myšlenka</h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel arcu at sapien
+        tincidunt facilisis. Curabitur ac sem non lectus porta dictum.</p>
+      <h3>Druhá myšlenka</h3>
+      <p>Vivamus euismod, nunc sit amet consequat aliquet, massa magna luctus mi, a pulvinar
+        neque erat vitae ipsum. Doplňující body rozvádějí jednotlivé podrobnosti.</p>
+      <h3>Třetí myšlenka</h3>
+      <p>Nam fermentum, tortor at feugiat tempus, urna lectus luctus nisl, at sodales dui augue
+        id lorem.</p>
+    </div>
+  </section>
+
+  <!-- 3) Snímek s obrázkem (bez lišty) -->
+  <section class="slide" data-title="Obrázek" data-subtitle="Schéma přes celý snímek" data-show-header="false">
+    <div class="present">
+      <figure class="fig">
+        <img src="img/schema.svg" alt="Schéma: příprava, přednáška, opakování">
+        <figcaption>Obr. 1 – Cyklus přípravy, přednášky a opakování</figcaption>
+      </figure>
+    </div>
+    <div class="support">
+      <h2>Snímek s obrázkem</h2>
+      <p>Tento snímek nemá lištu s nadpisem (<code>data-show-header="false"</code>), obrázek proto
+        může využít celou plochu. Číslo snímku zůstává vpravo nahoře.</p>
+      <p>Obrázky ukládejte do složky <code>img/</code>. Obrázek ve třídě <code>.fig</code> se
+        automaticky přizpůsobí velikosti snímku a zachová poměr stran.</p>
+      <img src="img/schema.svg" alt="Schéma: příprava, přednáška, opakování">
+      <p>Obrázek lze vložit i do podpůrné části – například ve vyšším rozlišení nebo s podrobným popisem.</p>
+    </div>
+  </section>
+
+  <!-- 4) Snímek s textem a obrázkem (s lištou) -->
+  <section class="slide" data-title="Text a obrázek" data-subtitle="Dva sloupce" data-show-header="true">
+    <div class="present">
+      <div class="split">
+        <div>
+          <h2>Účast roste</h2>
+          <ul class="bullets">
+            <li>Mírný pokles uprostřed semestru</li>
+            <li>Nejvyšší účast v 5. týdnu</li>
+            <li>Podpůrné texty pomáhají s opakováním</li>
+          </ul>
+        </div>
+        <figure class="fig">
+          <img src="img/graf.svg" alt="Sloupcový graf účasti v týdnech 1 až 5">
+          <figcaption>Obr. 2 – Počet studentů na přednáškách</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="support">
+      <h2>Text a obrázek</h2>
+      <p>Rozvržení <code>.split</code> rozdělí snímek na dva sloupce – vlevo text, vpravo obrázek
+        (nebo naopak, podle pořadí prvků).</p>
+      <p>Graf ukazuje počet studentů v prvních pěti týdnech semestru. Data jsou pouze ilustrační.</p>
+      <ul>
+        <li>1. týden: 80 studentů</li>
+        <li>2. týden: 70 studentů</li>
+        <li>3. týden: 60 studentů</li>
+        <li>4. týden: 65 studentů</li>
+        <li>5. týden: 85 studentů</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- Zobrazení – plní js/app.js -->
+<div id="app">
+  <div id="present-pane" class="pane present-pane" aria-label="Prezentační část"></div>
+  <div id="support-pane" class="pane support-pane">
+    <div id="support-scroll" class="support-scroll" aria-label="Podpůrná část"></div>
+  </div>
+</div>
+
+<!-- Menu (klávesa M) -->
+<dialog id="menu" class="menu" aria-labelledby="menu-title">
+  <div class="menu-head">
+    <h2 id="menu-title">Menu</h2>
+    <button type="button" class="icon-btn" data-action="close" aria-label="Zavřít menu">×</button>
+  </div>
+  <form id="menu-form" class="menu-body" onsubmit="return false">
+
+    <fieldset>
+      <legend>Režim zobrazení</legend>
+      <div class="opt-row">
+        <label class="opt"><input type="radio" name="viewMode" value="present"> Prezentační</label>
+        <label class="opt"><input type="radio" name="viewMode" value="support"> Podpůrný</label>
+        <label class="opt"><input type="radio" name="viewMode" value="combined"> Kombinovaný</label>
+      </div>
+    </fieldset>
+
+    <fieldset data-requires="combined">
+      <legend>Kombinovaný režim</legend>
+      <div class="opt-row">
+        <label class="opt"><input type="radio" name="combinedLayout" value="present-left"> Prezentace vlevo</label>
+        <label class="opt"><input type="radio" name="combinedLayout" value="present-right"> Prezentace vpravo</label>
+        <label class="opt"><input type="radio" name="combinedLayout" value="present-top"> Prezentace nahoře</label>
+        <label class="opt"><input type="radio" name="combinedLayout" value="present-bottom"> Prezentace dole</label>
+      </div>
+      <label class="range">
+        <span>Rozdělení okna (prezentační : podpůrná) <output for="split-ratio">50 : 50</output></span>
+        <input type="range" id="split-ratio" name="splitRatio" min="10" max="90" step="1">
+      </label>
+      <label class="range">
+        <span>Přepnout snímek, když další podpůrný snímek zabírá odspodu okna <output for="switch-threshold">25 %</output></span>
+        <input type="range" id="switch-threshold" name="switchThreshold" min="0" max="100" step="1">
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vzhled</legend>
+      <div class="opt-row">
+        <label class="opt"><input type="radio" name="theme" value="light"> Světlý</label>
+        <label class="opt"><input type="radio" name="theme" value="dark"> Tmavý</label>
+        <label class="opt"><input type="radio" name="theme" value="contrast"> Vysoký kontrast</label>
+      </div>
+      <div class="opt-col" style="margin-top: 10px">
+        <label class="opt"><input type="checkbox" name="showSlideNumbers"> Zobrazit číslo snímku a celkový počet</label>
+        <label class="opt"><input type="checkbox" name="menuButtonOnAllSlides"> Tlačítko menu na každém snímku (jinak jen na prvním)</label>
+        <label class="opt"><input type="checkbox" name="showNavArrows"> Zobrazit ovládací šipky na obrazovce</label>
+      </div>
+      <fieldset data-requires="nav">
+        <legend>Umístění šipek</legend>
+        <div class="opt-row">
+          <label class="opt"><input type="radio" name="navArrowsPosition" value="sides"> Po stranách</label>
+          <label class="opt"><input type="radio" name="navArrowsPosition" value="bottom-right"> Vpravo dole</label>
+          <label class="opt"><input type="radio" name="navArrowsPosition" value="bottom-center"> Dole uprostřed</label>
+        </div>
+      </fieldset>
+    </fieldset>
+
+    <fieldset>
+      <legend>Export pro tisk</legend>
+      <div class="opt-row">
+        <label class="opt"><input type="radio" name="exportWhat" value="present"> Prezentační část</label>
+        <label class="opt"><input type="radio" name="exportWhat" value="support"> Podpůrná část</label>
+        <label class="opt"><input type="radio" name="exportWhat" value="both"> Obojí</label>
+      </div>
+
+      <fieldset data-export="present">
+        <legend>Prezentační snímky</legend>
+        <div class="opt-row">
+          <label class="opt"><input type="radio" name="exportPresentLayout" value="one"> Jeden na stránku (na šířku)</label>
+          <label class="opt"><input type="radio" name="exportPresentLayout" value="two"> Dva na stránku (na výšku)</label>
+        </div>
+      </fieldset>
+
+      <fieldset data-export="support both">
+        <legend>Podpůrná část</legend>
+        <div class="opt-row">
+          <label class="opt"><input type="radio" name="exportSupportLayout" value="newpage"> Každý snímek na nové stránce</label>
+          <label class="opt"><input type="radio" name="exportSupportLayout" value="continuous"> Plynule za sebou</label>
+        </div>
+      </fieldset>
+
+      <fieldset data-export="both">
+        <legend>Prezentační snímek pod podpůrnou částí</legend>
+        <div class="opt-row">
+          <label class="opt"><input type="radio" name="exportBothOrientation" value="landscape"> Na šířku (zmenšený)</label>
+          <label class="opt"><input type="radio" name="exportBothOrientation" value="portrait"> Na výšku (otočený, celá stránka)</label>
+        </div>
+      </fieldset>
+
+      <div class="menu-actions">
+        <button type="button" class="btn" data-action="reset">Obnovit výchozí nastavení</button>
+        <button type="button" class="btn primary" data-action="export">Exportovat pro tisk…</button>
+      </div>
+    </fieldset>
+
+    <p class="menu-hint"><kbd>←</kbd> <kbd>→</kbd> snímky · <kbd>↑</kbd> <kbd>↓</kbd> posun podpůrné části ·
+      <kbd>M</kbd> menu · <kbd>Esc</kbd> zavřít</p>
+  </form>
+</dialog>
+
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

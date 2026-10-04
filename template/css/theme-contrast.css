@@ -1,0 +1,46 @@
+/* Vysokokontrastní režim */
+:root {
+  color-scheme: dark;
+
+  --bg: #000000;
+  --fg: #ffffff;
+  --border: #ffffff;
+  --focus: #00ffff;
+
+  --accent: #ffff00;
+  --accent-fg: #000000;
+  --muted: #ffffff;
+
+  /* prezentační část */
+  --pane-bg: #000000;
+  --slide-bg: #000000;
+  --slide-fg: #ffffff;
+  --slide-edge: #ffffff;
+  --title-fg: #ffff00;
+  --bar-bg: #000000;
+  --bar-fg: #ffff00;
+  --bar-sub: #ffffff;
+  --bar-line: #ffffff;
+  --number-fg: #ffffff;
+
+  /* podpůrná část */
+  --support-pane-bg: #000000;
+  --support-bg: #000000;
+  --support-fg: #ffffff;
+  --support-sep: #ffffff;
+  --note-bg: #000000;
+  --code-bg: #000000;
+
+  /* menu a tlačítka */
+  --menu-bg: #000000;
+  --menu-fg: #ffffff;
+  --btn-bg: #000000;
+  --btn-fg: #ffff00;
+  --btn-border: #ffff00;
+}
+
+/* silnější oddělení a podtržení odkazů */
+.s-page + .s-page { border-top-style: solid; border-top-width: 2px; }
+.menu-btn { opacity: 1; }
+.nav-btn { opacity: 0.8; }
+a { color: #00ffff; }

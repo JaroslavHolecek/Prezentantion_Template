@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Sloupcový graf: počet studentů na přednáškách v týdnech 1 až 5">
+  <rect width="640" height="480" rx="20" fill="#f4f6f9"/>
+  <g font-family="Segoe UI, Roboto, Arial, sans-serif" font-size="18" fill="#5b6474">
+    <path d="M80 60 V400 H600" fill="none" stroke="#9aa3b2" stroke-width="2"/>
+    <path d="M80 315 H600 M80 230 H600 M80 145 H600" stroke="#dde2ea" stroke-width="1.5"/>
+    <text x="68" y="406" text-anchor="end">0</text>
+    <text x="68" y="321" text-anchor="end">25</text>
+    <text x="68" y="236" text-anchor="end">50</text>
+    <text x="68" y="151" text-anchor="end">75</text>
+
+    <rect x="110" y="128" width="64" height="272" rx="4" fill="#16365c"/>
+    <rect x="210" y="162" width="64" height="238" rx="4" fill="#16365c"/>
+    <rect x="310" y="196" width="64" height="204" rx="4" fill="#16365c"/>
+    <rect x="410" y="179" width="64" height="221" rx="4" fill="#16365c"/>
+    <rect x="510" y="111" width="64" height="289" rx="4" fill="#1f6feb"/>
+
+    <g text-anchor="middle">
+      <text x="142" y="430">1.</text>
+      <text x="242" y="430">2.</text>
+      <text x="342" y="430">3.</text>
+      <text x="442" y="430">4.</text>
+      <text x="542" y="430">5.</text>
+      <text x="542" y="98" font-weight="600" fill="#1f6feb">85</text>
+      <text x="340" y="462" font-size="16">týden semestru</text>
+    </g>
+  </g>
+</svg>

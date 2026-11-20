@@ -10,23 +10,23 @@
 <body>
 
 <!--
-  ZDROJOVÉ SNÍMKY
-  Každý snímek je <section class="slide"> se dvěma částmi:
-    <div class="present">  – prezentační část (A4 na šířku, promítá se)
-    <div class="support">  – podpůrná část (A4 na výšku, komentář ke čtení)
+  SOURCE SLIDES
+  Each slide is a <section class="slide"> with two parts:
+    <div class="present">  – presentation part (landscape A4, projected)
+    <div class="support">  – supporting part (portrait A4, commentary for reading)
 
-  Atributy snímku:
-    data-title="…"             – název snímku
-    data-subtitle="…"          – podnázev snímku
-    data-show-header="true"    – zobrazit název a podnázev v liště nahoře (jinak "false")
+  Slide attributes:
+    data-title="…"             – slide title
+    data-subtitle="…"          – slide subtitle
+    data-show-header="true"    – show the title and subtitle in the top bar (otherwise "false")
 
-  Titulní snímek má navíc třídu "title-slide".
-  Užitečné třídy obsahu: .bullets (odrážky), .fig (obrázek s popiskem), .split (dva sloupce),
-  .note (zvýrazněná poznámka v podpůrné části).
+  The title slide additionally has the class "title-slide".
+  Useful content classes: .bullets (bullet list), .fig (figure with caption), .split (two columns),
+  .note (highlighted note in the supporting part).
 -->
 <main id="slides">
 
-  <!-- 1) Titulní snímek -->
+  <!-- 1) Title slide -->
   <section class="slide title-slide" data-title="Úvod" data-show-header="false">
     <div class="present">
       <div class="title-layout">
@@ -46,12 +46,12 @@
       <h3>Jak šablonu ovládat</h3>
       <ul>
         <li><kbd>←</kbd> <kbd>→</kbd> – předchozí / další snímek</li>
-        <li><kbd>↑</kbd> <kbd>↓</kbd> – plynulý posun podpůrné části</li>
+        <li><kbd>↑</kbd> <kbd>↓</kbd> – posun podpůrné části (krok lze nastavit v menu)</li>
         <li><kbd>M</kbd> – otevře a zavře menu (nebo tlačítko vlevo dole), <kbd>Esc</kbd> zavře menu</li>
       </ul>
       <p>Na obrazovce jsou také nenápadné šipky. Šipky vlevo a vpravo přepínají snímky. V podpůrné
         části jsou navíc šipky nahoru a dolů: po najetí myší se text pomalu posouvá, po kliknutí
-        zůstane posun zapnutý (vypnete ho dalším kliknutím).</p>
+        zůstane posun zapnutý (vypnete ho dalším kliknutím). Rychlost posunu nastavíte v menu.</p>
       <p>V menu lze přepnout režim zobrazení (prezentační, podpůrný, kombinovaný), barevný režim
         a připravit prezentaci k tisku.</p>
       <div class="note">V kombinovaném režimu jsou obě části synchronizované: při přechodu na další
@@ -60,7 +60,7 @@
     </div>
   </section>
 
-  <!-- 2) Snímek s bodovým textem (s lištou) -->
+  <!-- 2) Slide with bullet points (with header bar) -->
   <section class="slide" data-title="Bodový text" data-subtitle="Ukázka odrážek" data-show-header="true">
     <div class="present">
       <ul class="bullets">
@@ -91,7 +91,7 @@
     </div>
   </section>
 
-  <!-- 3) Snímek s obrázkem (bez lišty) -->
+  <!-- 3) Slide with an image (without header bar) -->
   <section class="slide" data-title="Obrázek" data-subtitle="Schéma přes celý snímek" data-show-header="false">
     <div class="present">
       <figure class="fig">
@@ -110,7 +110,7 @@
     </div>
   </section>
 
-  <!-- 4) Snímek s textem a obrázkem (s lištou) -->
+  <!-- 4) Slide with text and an image (with header bar) -->
   <section class="slide" data-title="Text a obrázek" data-subtitle="Dva sloupce" data-show-header="true">
     <div class="present">
       <div class="split">
@@ -145,7 +145,7 @@
 
 </main>
 
-<!-- Zobrazení – plní js/app.js -->
+<!-- View – filled in by js/app.js -->
 <div id="app">
   <div id="present-pane" class="pane present-pane" aria-label="Prezentační část"></div>
   <div id="support-pane" class="pane support-pane">
@@ -153,7 +153,7 @@
   </div>
 </div>
 
-<!-- Menu (klávesa M) -->
+<!-- Menu (M key) -->
 <dialog id="menu" class="menu" aria-labelledby="menu-title">
   <div class="menu-head">
     <h2 id="menu-title">Menu</h2>
@@ -189,8 +189,21 @@
       </label>
     </fieldset>
 
+    <fieldset data-requires="support combined speaker">
+      <legend>Posun podpůrné části</legend>
+      <label class="range">
+        <span>Rychlost posunu šipkami na obrazovce <output for="auto-scroll-speed">120 px/s</output></span>
+        <input type="range" id="auto-scroll-speed" name="autoScrollSpeed" min="20" max="600" step="10">
+      </label>
+      <label class="range">
+        <span>Krok posunu šipkami ↑ ↓ na klávesnici <output for="scroll-step">80 px</output></span>
+        <input type="range" id="scroll-step" name="scrollStep" min="20" max="400" step="10">
+      </label>
+    </fieldset>
+
     <fieldset data-requires="speaker">
       <legend>Řečnický pohled</legend>
+
       <div class="opt-col">
         <label class="opt"><input type="checkbox" name="showTimer"> Zobrazit časomíru</label>
         <label class="opt">Délka přednášky <input type="number" name="timerMinutes" min="1" max="600" step="1"> min</label>

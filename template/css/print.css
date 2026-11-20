@@ -1,6 +1,6 @@
 /*
- * Styly stránky pro tisk (otevírá se z menu → Export pro tisk).
- * Rozměry stránek jsou A4; velikost @page doplňuje js/app.js podle zvolené varianty.
+ * Styles of the print page (opened from the menu → Print export).
+ * Pages are A4; the @page size is added by js/app.js according to the chosen variant.
  */
 
 html.print-html, html.print-html body { height: auto; overflow: visible; }
@@ -40,7 +40,7 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
   cursor: pointer;
 }
 
-/* ---------- Stránky s pevnou velikostí ---------- */
+/* ---------- Fixed-size pages ---------- */
 
 .sheet {
   position: relative;
@@ -51,11 +51,11 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
 
 .sheet:last-child { break-after: auto; }
 
-/* jeden snímek na stránku, A4 na šířku */
+/* one slide per page, landscape A4 */
 .sheet.landscape { width: 297mm; height: 210mm; }
 .sheet.landscape .p-slide { --sw: 297mm; }
 
-/* dva snímky na stránku, A4 na výšku */
+/* two slides per page, portrait A4 */
 .sheet.portrait {
   display: flex;
   flex-direction: column;
@@ -69,7 +69,7 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
 
 .sheet.portrait .p-slide { --sw: 190mm; outline: 0.25mm solid var(--support-sep); }
 
-/* snímek otočený o 90° přes celou stránku A4 na výšku */
+/* slide rotated by 90° over the whole portrait A4 page */
 .sheet.rotated { width: 210mm; height: 297mm; break-before: page; }
 .sheet.rotated .p-slide {
   --sw: 297mm;
@@ -80,7 +80,7 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
   transform: translateX(210mm) rotate(90deg);
 }
 
-/* ---------- Plynulý tok (podpůrná část) ---------- */
+/* ---------- Continuous flow (supporting part) ---------- */
 
 .flow {
   width: 210mm;
@@ -109,7 +109,7 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
 .slide-below { margin-top: 6mm; break-inside: avoid; }
 .slide-below .p-slide { --sw: 180mm; outline: 0.25mm solid var(--support-sep); }
 
-/* podpůrná část + otočené snímky: stránka bez okrajů, okraje drží s-page */
+/* supporting part + rotated slides: page without margins, s-page keeps the margins */
 .flow.rotated-mode { padding: 0; }
 .flow.rotated-mode .s-page {
   padding: 15mm;
@@ -118,7 +118,7 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
 }
 .flow.rotated-mode .group + .group { break-before: page; }
 
-/* ---------- Náhled na obrazovce ---------- */
+/* ---------- On-screen preview ---------- */
 
 @media screen {
   .print-doc { padding: 64px 0 32px; background: #6b7280; }
@@ -126,7 +126,8 @@ html.print-html, html.print-html body { height: auto; overflow: visible; }
   .flow .sheet.rotated { margin: 8mm 0 0; box-shadow: 0 0 0 0.3mm var(--support-sep); }
 }
 
-/* ---------- Tisk ---------- */
+/* ---------- Print ---------- */
+
 
 @media print {
   .print-toolbar { display: none; }

@@ -21,7 +21,7 @@ Je možné zobrazit prezentaci ve třech režimech - prezentační, kdy je vidě
 Přepínat mezi snímky je možné šípkami (vlevo/vpravo) na klávesnici, posouvat plynule nahoru a dolů podpůrnou část je možné šipkami (nahoru/dolů) na klávesnici
 
 Mezi snímky je možné také přepínat "šipkami na obrazovce" (pokud je zapnuté jejich zobrazení). V prezentační části jsou to prosté dvě malé nenápadné (poloprůhledné) šipky vlevo a vpravo.
-V podpůrné části jsou to ty stejné dvě šipky (které posunou zobrazení vždy na začátek následujícího/předchozího snímku) a navíc dvě obdobné šipky nahoru a dolů - pokud se ně ně najede (hover) myší, bude se zobrazení pomalu posouvat, pokud se na některou z nich klikne, zůstane "zaplá" i při odjetí kurzoru jinam (je možné mít zapnutou pouze jednu z nich zároveň, zapnutí se vypíná znovu kliknutím na zapnutou šipku - pokud se klikne na druhou, automaticky se zapnutí přepna na tuto druhou). Rychlost posunu lze nastavit v settings souboru
+V podpůrné části jsou to ty stejné dvě šipky (které posunou zobrazení vždy na začátek následujícího/předchozího snímku) a navíc dvě obdobné šipky nahoru a dolů - pokud se ně ně najede (hover) myší, bude se zobrazení pomalu posouvat, pokud se na některou z nich klikne, zůstane "zaplá" i při odjetí kurzoru jinam (je možné mít zapnutou pouze jednu z nich zároveň, zapnutí se vypíná znovu kliknutím na zapnutou šipku - pokud se klikne na druhou, automaticky se zapnutí přepna na tuto druhou). Rychlost posunu lze nastavit v menu (výchozí hodnota v settings souboru)
 
 
 Menu (modální okno) je možné otevřít stisknutím tlačítka "m" na klávesnici. Zavírá se znovu pomocí "m" nebo "Esc"
@@ -37,6 +37,7 @@ Nastavit šířku či výšku rozdělení okna v kombinovaném režimu (defaultn
 Nastavit hodnotu při které se přepne prezentační snímek při scrollování v podpůrné části, počítáno odspodu okne (defaultně 25%, možno 0-100%)
 Nastavit viditelnost čísla snímku a celkového počtu snímků
 Nastavit viditelnost ovládacích šipek a jejich umístění na obrazovce
+Nastavit rychlost posunu podpůrné části šipkami na obrazovce (px/s) a krok posunu šipkami na klávesnici (px) pomocí sliderů
 
 Dále je možné v menu Exportovat prezentaci pro tisk (otevře novou html stránku) - jen prezentační část (možno zvolit, zda má každý snímek mít svoji stránku (na šířku v plné velikosti) nebo zda mají být dva snímky na stránce (list na výšku, každý snímek zmenšený na polovinu)); jen podpůrnou část (zde je možné zvolit, zda má každý snímek začínat na začátku nové stránky, nebo zda na sebe mají plynule navazovat), nebo obojí najednou (při obojím najednou je vždy nejprve podpůrná část a pod ní prezentační snímek - v menu možno zvolit, zda chci prezentační snímky na šířku (jako v prezentaci, ale zmenšené) nebo na výšku (tedy otočené o 90 stupňů ale v plné velikosti stránky))
 

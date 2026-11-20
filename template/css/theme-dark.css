@@ -1,4 +1,4 @@
-/* Tmavý režim */
+/* Dark theme */
 :root {
   color-scheme: dark;
 
@@ -11,7 +11,7 @@
   --accent-fg: #0b1220;
   --muted: #9aa3b2;
 
-  /* prezentační část */
+  /* presentation part */
   --pane-bg: #07090d;
   --slide-bg: #171b23;
   --slide-fg: #e6e9ef;
@@ -23,7 +23,7 @@
   --bar-line: #2e3646;
   --number-fg: #8d97a8;
 
-  /* podpůrná část */
+  /* supporting part */
   --support-pane-bg: #0b0e13;
   --support-bg: #141820;
   --support-fg: #d7dce5;
@@ -31,7 +31,7 @@
   --note-bg: #1a2433;
   --code-bg: #1e2430;
 
-  /* menu a tlačítka */
+  /* menu and buttons */
   --menu-bg: #1b2029;
   --menu-fg: #e6e9ef;
   --btn-bg: #232a36;

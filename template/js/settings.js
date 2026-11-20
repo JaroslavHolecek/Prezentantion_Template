@@ -1,34 +1,35 @@
 /*
- * Nastavení šablony přednáškových slidů.
- * Hodnoty slouží jako výchozí – uživatel je může měnit v menu (klávesa M)
- * a pokud je zapnuté rememberSettings, uloží se do prohlížeče.
+ * Settings of the lecture slides template.
+ * The values are defaults – the user can change them in the menu (M key)
+ * and, if rememberSettings is enabled, they are stored in the browser.
  */
 window.SLIDES_CONFIG = {
-  /* Režim zobrazení: 'present' (prezentační) | 'support' (podpůrný) | 'combined' (kombinovaný)
-     | 'speaker' (řečnický – prezentace v samostatném okně pro projektor, zde aktuální
-     a další snímek, časomíra a podpůrná část; rozvržení sdílí s kombinovaným režimem) */
+  /* View mode: 'present' (presentation) | 'support' (supporting text) | 'combined'
+     | 'speaker' (presentation in a separate window for the projector; this window shows
+     the current and next slide, a timer and the supporting part; shares the layout with
+     the combined mode) */
   viewMode: 'present',
 
-  /* Rozmístění v kombinovaném a řečnickém režimu:
-     'present-left'   – prezentace vlevo, podpůrná část vpravo
-     'present-right'  – podpůrná část vlevo, prezentace vpravo
-     'present-top'    – prezentace nahoře, podpůrná část dole
-     'present-bottom' – podpůrná část nahoře, prezentace dole */
+  /* Layout in the combined and speaker modes:
+     'present-left'   – presentation on the left, supporting part on the right
+     'present-right'  – supporting part on the left, presentation on the right
+     'present-top'    – presentation at the top, supporting part at the bottom
+     'present-bottom' – supporting part at the top, presentation at the bottom */
   combinedLayout: 'present-left',
 
-  /* Podíl prezentační části v kombinovaném režimu (v %) a jeho povolený rozsah */
+  /* Share of the presentation part in the combined mode (in %) and its allowed range */
   splitRatio: 50,
   splitMin: 10,
   splitMax: 90,
 
-  /* Kolik % výšky okna (počítáno odspodu) musí zabírat následující podpůrný snímek,
-     aby se při scrollování přepnul prezentační snímek (0–100) */
+  /* How many % of the window height (measured from the bottom) the next supporting slide
+     must occupy for the presentation slide to switch while scrolling (0–100) */
   switchThreshold: 25,
 
-  /* Tlačítko menu na každém snímku (true), nebo jen na prvním (false) */
+  /* Menu button on every slide (true), or only on the first one (false) */
   menuButtonOnAllSlides: false,
 
-  /* Barevný režim: klíč z themeFiles (cesty jsou relativní ke složce šablony) */
+  /* Color theme: a key from themeFiles (paths are relative to the template folder) */
   theme: 'light',
   themeFiles: {
     light: 'css/theme-light.css',
@@ -36,32 +37,38 @@ window.SLIDES_CONFIG = {
     contrast: 'css/theme-contrast.css'
   },
 
-  /* Zobrazit číslo snímku a celkový počet snímků */
+  /* Show the slide number and the total number of slides */
   showSlideNumbers: true,
 
-  /* Ovládací šipky na obrazovce */
+  /* On-screen navigation arrows */
   showNavArrows: true,
-  navArrowsPosition: 'sides',       // 'sides' – po stranách | 'bottom-right' – vpravo dole | 'bottom-center' – dole uprostřed
+  navArrowsPosition: 'sides',       // 'sides' – on the sides | 'bottom-right' – bottom right | 'bottom-center' – bottom center
 
-  /* Časomíra v řečnickém pohledu: zobrazit, délka přednášky v minutách (1–600).
-     Po načtení je připravená a spouští se ručně. */
+  /* Timer in the speaker view: show it, lecture length in minutes (1–600).
+     It is ready after loading and is started manually. */
   showTimer: true,
   timerMinutes: 45,
 
-  /* Rychlost plynulého posunu podpůrné části šipkami nahoru/dolů na obrazovce (px za sekundu) */
+  /* Speed of the smooth scrolling of the supporting part by the on-screen up/down arrows
+     (px per second) and its allowed range in the menu */
   autoScrollSpeed: 120,
+  autoScrollSpeedMin: 20,
+  autoScrollSpeedMax: 600,
 
-  /* Export pro tisk */
-  exportWhat: 'present',            // 'present' | 'support' | 'both'
-  exportPresentLayout: 'one',       // 'one' – snímek na stránku (na šířku) | 'two' – dva snímky na stránku (na výšku)
-  exportSupportLayout: 'newpage',   // 'newpage' – každý snímek na nové stránce | 'continuous' – plynule za sebou
-  exportBothOrientation: 'landscape', // 'landscape' – zmenšený snímek pod textem | 'portrait' – otočený snímek přes celou stránku
-  printTheme: 'light',              // barevný režim tisku; null = aktuální režim
-
-  /* Posun podpůrné části šipkami nahoru/dolů (px) */
+  /* Scroll step of the supporting part by the keyboard up/down arrows (px per key press)
+     and its allowed range in the menu */
   scrollStep: 80,
+  scrollStepMin: 20,
+  scrollStepMax: 400,
 
-  /* Pamatovat si nastavení z menu v prohlížeči (localStorage) */
+  /* Print export */
+  exportWhat: 'present',            // 'present' | 'support' | 'both'
+  exportPresentLayout: 'one',       // 'one' – one slide per page (landscape) | 'two' – two slides per page (portrait)
+  exportSupportLayout: 'newpage',   // 'newpage' – each slide on a new page | 'continuous' – continuous flow
+  exportBothOrientation: 'landscape', // 'landscape' – scaled-down slide below the text | 'portrait' – rotated slide over the whole page
+  printTheme: 'light',              // color theme for printing; null = current theme
+
+  /* Remember the menu settings in the browser (localStorage) */
   rememberSettings: true,
-  storageKey: 'prednaska-nastaveni'
+  storageKey: 'BadPresentation-settings'
 };

@@ -1,8 +1,10 @@
 # Šablona přednáškových slidů
 
+[English](README.md) | **Čeština**
+
 HTML + CSS + JS šablona pro přednáškové slidy, která ke každému snímku přidává
 podpůrný text ke čtení. Funguje bez instalace, bez build kroku a bez externích
-závislostí – stačí otevřít `index.html` v prohlížeči.
+závislostí – stačí otevřít `template/index.html` v prohlížeči.
 
 Každý snímek má dvě části:
 
@@ -26,7 +28,8 @@ Každý snímek má dvě části:
 - **Barevné režimy** – světlý, tmavý a vysoký kontrast.
 - **Ovládací šipky na obrazovce** – volitelné, s nastavitelným umístěním;
   v podpůrné části šipky nahoru/dolů plynule posouvají text (najetím myší,
-  nebo trvale kliknutím).
+  nebo trvale kliknutím). Rychlost posunu i krok posunu klávesnicí lze
+  nastavit v menu.
 - **Menu** s nastavením zobrazení; nastavení se pamatuje v prohlížeči.
 - **Export pro tisk** – jen prezentační část (jeden nebo dva snímky na
   stránku), jen podpůrná část (každý snímek na nové stránce nebo plynule),
@@ -36,8 +39,8 @@ Každý snímek má dvě části:
 ## Rychlý start
 
 1. Stáhněte nebo naklonujte repozitář.
-2. Otevřete `index.html` v prohlížeči.
-3. Upravte snímky v `index.html` a obrázky vložte do složky `img/`.
+2. Otevřete `template/index.html` v prohlížeči.
+3. Upravte snímky v `template/index.html` a obrázky vložte do složky `template/img/`.
 
 ## Ovládání
 
@@ -70,9 +73,7 @@ Rozvržení a ostatní nastavení sdílí řečnický pohled s kombinovaným re�
 
 ```
 .
-├── index.html            # ukázková prezentace (používá soubory ze složky template/)
-├── img/                  # obrázky ukázkové prezentace
-└── template/             # samostatná kopie šablony
+└── template/             # šablona
     ├── index.html        # výchozí prezentace se čtyřmi vzorovými snímky
     ├── img/              # obrázky
     ├── css/
@@ -143,8 +144,8 @@ Většinu z nich lze měnit i za běhu v menu. Nejdůležitější:
 
 | Klíč | Výchozí hodnota | Význam |
 | --- | --- | --- |
-| `viewMode` | `'present'` | režim zobrazení: `present`, `support`, `combined` |
-| `combinedLayout` | `'present-left'` | rozmístění v kombinovaném režimu |
+| `viewMode` | `'present'` | režim zobrazení: `present`, `support`, `combined`, `speaker` |
+| `combinedLayout` | `'present-left'` | rozmístění v kombinovaném a řečnickém režimu |
 | `splitRatio` | `50` | podíl prezentační části v kombinovaném režimu (%) |
 | `switchThreshold` | `25` | kolik % výšky okna odspodu musí zabírat další podpůrný snímek, aby se přepnul prezentační snímek |
 | `theme` | `'light'` | barevný režim: `light`, `dark`, `contrast` |
@@ -154,8 +155,8 @@ Většinu z nich lze měnit i za běhu v menu. Nejdůležitější:
 | `navArrowsPosition` | `'sides'` | umístění šipek: `sides`, `bottom-right`, `bottom-center` |
 | `showTimer` | `true` | zobrazit časomíru v řečnickém pohledu |
 | `timerMinutes` | `45` | délka přednášky pro odpočet časomíry (min) |
-| `autoScrollSpeed` | `120` | rychlost plynulého posunu podpůrné části (px/s) |
-| `scrollStep` | `80` | posun podpůrné části klávesami ↑ ↓ (px) |
+| `autoScrollSpeed` | `120` | rychlost plynulého posunu podpůrné části šipkami na obrazovce (px/s), rozsah v menu `autoScrollSpeedMin`–`autoScrollSpeedMax` |
+| `scrollStep` | `80` | posun podpůrné části klávesami ↑ ↓ (px), rozsah v menu `scrollStepMin`–`scrollStepMax` |
 | `printTheme` | `'light'` | barevný režim při tisku (`null` = aktuální) |
 | `rememberSettings` | `true` | ukládat nastavení z menu do `localStorage` |
 

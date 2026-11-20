@@ -1,4 +1,4 @@
-/* Vysokokontrastní režim */
+/* High-contrast theme */
 :root {
   color-scheme: dark;
 
@@ -11,7 +11,7 @@
   --accent-fg: #000000;
   --muted: #ffffff;
 
-  /* prezentační část */
+  /* presentation part */
   --pane-bg: #000000;
   --slide-bg: #000000;
   --slide-fg: #ffffff;
@@ -23,7 +23,7 @@
   --bar-line: #ffffff;
   --number-fg: #ffffff;
 
-  /* podpůrná část */
+  /* supporting part */
   --support-pane-bg: #000000;
   --support-bg: #000000;
   --support-fg: #ffffff;
@@ -31,7 +31,7 @@
   --note-bg: #000000;
   --code-bg: #000000;
 
-  /* menu a tlačítka */
+  /* menu and buttons */
   --menu-bg: #000000;
   --menu-fg: #ffffff;
   --btn-bg: #000000;
@@ -39,7 +39,7 @@
   --btn-border: #ffff00;
 }
 
-/* silnější oddělení a podtržení odkazů */
+/* stronger separation and underlined links */
 .s-page + .s-page { border-top-style: solid; border-top-width: 2px; }
 .menu-btn { opacity: 1; }
 .nav-btn { opacity: 0.8; }

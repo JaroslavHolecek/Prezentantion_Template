@@ -1,4 +1,4 @@
-/* Světlý režim */
+/* Light theme */
 :root {
   color-scheme: light;
 
@@ -11,7 +11,7 @@
   --accent-fg: #ffffff;
   --muted: #5b6474;
 
-  /* prezentační část */
+  /* presentation part */
   --pane-bg: #cfd4dc;
   --slide-bg: #ffffff;
   --slide-fg: #1d2330;
@@ -23,7 +23,7 @@
   --bar-line: transparent;
   --number-fg: #7a8394;
 
-  /* podpůrná část */
+  /* supporting part */
   --support-pane-bg: #e4e7ec;
   --support-bg: #fcfcfa;
   --support-fg: #262b35;
@@ -31,7 +31,7 @@
   --note-bg: #eef4ff;
   --code-bg: #f1f3f6;
 
-  /* menu a tlačítka */
+  /* menu and buttons */
   --menu-bg: #ffffff;
   --menu-fg: #1d2330;
   --btn-bg: #ffffff;

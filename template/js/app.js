@@ -1,32 +1,36 @@
 /*
- * Šablona přednáškových slidů – interaktivita.
- * Ze zdrojových <section class="slide"> v #slides sestaví prezentační
- * a podpůrnou část, obsluhuje režimy zobrazení, synchronizaci, menu a export.
- * V řečnickém pohledu otevře druhé okno pro projektor a synchronizuje se s ním
- * přes postMessage.
+ * Lecture slides template – interactivity.
+ * Builds the presentation and supporting parts from the source
+ * <section class="slide"> elements in #slides and handles view modes,
+ * synchronization, the menu and export. In the speaker view it opens a second
+ * window for the projector and keeps it in sync via postMessage.
  */
 (function () {
   'use strict';
 
   const CFG = window.SLIDES_CONFIG || {};
-  // Kořen šablony (složka nad js/) – cesty k CSS se počítají od něj, takže
-  // stránka může ležet uvnitř i mimo složku šablony.
+  // Template root (the folder above js/) – CSS paths are resolved against it, so
+  // the page can live inside or outside the template folder.
   const TEMPLATE_BASE = new URL('..', document.currentScript.src);
   const templateUrl = function (path) { return new URL(path, TEMPLATE_BASE).href; };
   const PERSISTED = [
     'viewMode', 'combinedLayout', 'splitRatio', 'switchThreshold',
     'menuButtonOnAllSlides', 'theme', 'showSlideNumbers', 'showNavArrows', 'navArrowsPosition',
     'exportWhat', 'exportPresentLayout', 'exportSupportLayout', 'exportBothOrientation',
-    'showTimer', 'timerMinutes'
+    'showTimer', 'timerMinutes', 'autoScrollSpeed', 'scrollStep'
   ];
   const MODES = ['present', 'support', 'combined', 'speaker'];
   const LAYOUTS = ['present-left', 'present-right', 'present-top', 'present-bottom'];
   const NAV_POSITIONS = ['sides', 'bottom-right', 'bottom-center'];
   const THEME_FILES = CFG.themeFiles || { light: 'css/theme-light.css' };
   const STORAGE_KEY = (CFG.storageKey || 'prednaska-nastaveni') + ':' + location.pathname;
-  // Okno pro projektor (otevřené z řečnického pohledu) – jen aktuální snímek.
+  // Projector window (opened from the speaker view) – shows only the current slide.
   const IS_AUDIENCE = new URLSearchParams(location.search).get('role') === 'audience';
   const MSG_NS = 'slides-sync';
+  const SPEED_MIN = CFG.autoScrollSpeedMin || 20;
+  const SPEED_MAX = CFG.autoScrollSpeedMax || 600;
+  const STEP_MIN = CFG.scrollStepMin || 20;
+  const STEP_MAX = CFG.scrollStepMax || 400;
 
   const defaults = {};
   PERSISTED.forEach(function (k) { defaults[k] = CFG[k]; });
@@ -34,7 +38,7 @@
 
   const presentPane = document.getElementById('present-pane');
   const supportWrap = document.getElementById('support-pane');
-  const supportPane = document.getElementById('support-scroll'); // scrollovací část podpůrného panelu
+  const supportPane = document.getElementById('support-scroll'); // scrollable area of the supporting pane
   const themeLink = document.getElementById('theme-css');
   const menu = document.getElementById('menu');
   const form = document.getElementById('menu-form');
@@ -43,11 +47,11 @@
   const sPages = [];
   let total = 0;
   let current = 0;
-  let anchor = { idx: 0, frac: 0 }; // poloha podpůrné části: snímek + podíl jeho výšky
+  let anchor = { idx: 0, frac: 0 }; // position in the supporting part: slide + fraction of its height
   let suppressSync = false;
   let suppressTimer = 0;
 
-  /* ---------- Pomocné funkce ---------- */
+  /* ---------- Helpers ---------- */
 
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -71,7 +75,7 @@
 
   function save() {
     if (!CFG.rememberSettings || IS_AUDIENCE) return;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pick(state))); } catch (e) { /* bez úložiště */ }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pick(state))); } catch (e) { /* no storage */ }
   }
 
   function oneOf(v, list, fallback) { return list.indexOf(v) >= 0 ? v : fallback; }
@@ -93,6 +97,8 @@
     s.exportBothOrientation = oneOf(s.exportBothOrientation, ['landscape', 'portrait'], 'landscape');
     s.showTimer = s.showTimer !== false;
     s.timerMinutes = clamp(Math.round(num(s.timerMinutes, 45)), 1, 600);
+    s.autoScrollSpeed = clamp(Math.round(num(s.autoScrollSpeed, 120)), SPEED_MIN, SPEED_MAX);
+    s.scrollStep = clamp(Math.round(num(s.scrollStep, 80)), STEP_MIN, STEP_MAX);
     return s;
   }
 
@@ -104,7 +110,7 @@
 
   function supportVisible() { return state.viewMode !== 'present'; }
 
-  /* ---------- Sestavení snímků ---------- */
+  /* ---------- Building the slides ---------- */
 
   function makeMenuButton() {
     const b = el('button', 'menu-btn');
@@ -129,7 +135,7 @@
       const number = (i + 1) + ' / ' + total;
       const extraClasses = Array.prototype.filter.call(sec.classList, function (c) { return c !== 'slide'; });
 
-      /* Prezentační část */
+      /* Presentation part */
       const p = el('article', 'p-slide');
       p.classList.add.apply(p.classList, extraClasses);
       if (i === 0) p.classList.add('is-first');
@@ -148,7 +154,7 @@
       presentPane.append(p);
       pSlides.push(p);
 
-      /* Podpůrná část */
+      /* Supporting part */
       const s = el('article', 's-page');
       if (i === 0) s.classList.add('is-first');
       s.dataset.index = i;
@@ -164,7 +170,7 @@
     source.remove();
   }
 
-  /* ---------- Nastavení ---------- */
+  /* ---------- Settings ---------- */
 
   function applySettings() {
     const b = document.body;
@@ -185,7 +191,7 @@
     sendSettings();
   }
 
-  /* ---------- Navigace a synchronizace ---------- */
+  /* ---------- Navigation and synchronization ---------- */
 
   function suppress(ms) {
     suppressSync = true;
@@ -234,8 +240,8 @@
 
     if (suppressSync) return;
 
-    // Snímek se přepne, jakmile následující podpůrný snímek zabírá více než
-    // switchThreshold % výšky okna (počítáno odspodu).
+    // The slide switches as soon as the next supporting slide occupies more than
+    // switchThreshold % of the window height (measured from the bottom).
     const line = top + h * (1 - state.switchThreshold / 100);
     let idx = 0;
     for (let i = 0; i < total; i++) { if (sPages[i].offsetTop <= line) idx = i; else break; }
@@ -248,8 +254,8 @@
     if (suppressSync) { clearTimeout(suppressTimer); suppressSync = false; }
   });
 
-  /* V podpůrné části: na začátek dalšího snímku, resp. na začátek aktuálního
-     (pokud už je odscrollovaný), jinak na začátek předchozího. */
+  /* In the supporting part: go to the start of the next slide, or back to the start
+     of the current one (if already scrolled into it), otherwise to the previous one. */
   function supportStep(delta) {
     const a = anchor.idx;
     let target;
@@ -263,7 +269,7 @@
     goTo(target);
   }
 
-  /* ---------- Šipky na obrazovce ---------- */
+  /* ---------- On-screen arrows ---------- */
 
   const ARROWS = {
     prev: { path: 'M15 5l-7 7 7 7', label: 'Předchozí snímek' },
@@ -310,8 +316,8 @@
       supportStep(d === 'next' ? 1 : -1);
       return;
     }
-    // Kliknutí šipku „zapne“ (posun pokračuje i po odjetí myší), další kliknutí ji vypne.
-    // Zapnutá může být jen jedna – kliknutí na druhou přepne zapnutí na ni.
+    // A click "latches" the arrow (scrolling continues after the pointer leaves), another click releases it.
+    // Only one can be latched – clicking the other one moves the latch to it.
     const dir = d === 'down' ? 1 : -1;
     latchDir = latchDir === dir ? 0 : dir;
     updateAutoScroll();
@@ -323,7 +329,7 @@
     b.addEventListener('pointerleave', function () { hoverDir = 0; updateAutoScroll(); });
   });
 
-  /* Plynulý posun podpůrné části – směr: zapnutá šipka, jinak šipka pod myší. */
+  /* Smooth scrolling of the supporting part – direction: the latched arrow, otherwise the hovered one. */
   let hoverDir = 0;
   let latchDir = 0;
   let autoRaf = 0;
@@ -346,13 +352,13 @@
     const dir = latchDir || hoverDir;
     if (!dir || !supportVisible()) { autoRaf = 0; return; }
     if (autoLastT) {
-      autoAcc += dir * (CFG.autoScrollSpeed || 120) * Math.min(t - autoLastT, 100) / 1000;
+      autoAcc += dir * state.autoScrollSpeed * Math.min(t - autoLastT, 100) / 1000;
       const whole = Math.trunc(autoAcc);
       if (whole) {
         const before = supportPane.scrollTop;
         supportPane.scrollTop = before + whole;
         autoAcc -= whole;
-        if (supportPane.scrollTop === before && latchDir) { latchDir = 0; updateAutoScroll(); } // dojeto na konec
+        if (supportPane.scrollTop === before && latchDir) { latchDir = 0; updateAutoScroll(); } // reached the end
       }
     }
     autoLastT = t;
@@ -365,9 +371,9 @@
     updateAutoScroll();
   }
 
-  /* ---------- Řečnický pohled ---------- */
+  /* ---------- Speaker view ---------- */
 
-  /* Pod aktuálním snímkem: zmenšený následující snímek a časomíra. */
+  /* Below the current slide: a scaled-down next slide and the timer. */
   const speakerBar = el('div', 'speaker-bar');
   speakerBar.innerHTML =
     '<div class="sp-next">' +
@@ -395,7 +401,7 @@
     if (b.dataset.sp === 'open') openAudience();
     else if (b.dataset.sp === 'toggle') toggleTimer();
     else resetTimer();
-    b.blur(); // šipky na klávesnici dál ovládají snímky
+    b.blur(); // keep the keyboard arrows controlling the slides
   });
 
   function renderNext() {
@@ -409,9 +415,9 @@
     spFrame.append(c);
   }
 
-  /* Časomíra – po načtení je připravená, spouští se ručně. */
-  let timerElapsed = 0; // ms naměřené před posledním spuštěním
-  let timerStart = 0;   // Date.now() při spuštění, 0 = pozastaveno
+  /* Timer – ready after loading, started manually. */
+  let timerElapsed = 0; // ms measured before the last start
+  let timerStart = 0;   // Date.now() at start, 0 = paused
   let timerTick = 0;
 
   function pad(n) { return String(n).padStart(2, '0'); }
@@ -453,14 +459,14 @@
     updateTimer();
   }
 
-  /* Okno pro projektor: hlavní okno drží odkaz na něj (audience),
-     okno pro projektor posílá zprávy svému window.opener. */
+  /* Projector window: the main window keeps a reference to it (audience),
+     the projector window sends messages to its window.opener. */
   let audience = null;
 
   function post(win, msg) {
     if (!win || win.closed) return;
     msg.ns = MSG_NS;
-    try { win.postMessage(msg, '*'); } catch (e) { /* okno už neexistuje */ }
+    try { win.postMessage(msg, '*'); } catch (e) { /* the window no longer exists */ }
   }
 
   function sendSettings() {
@@ -508,7 +514,7 @@
         applySettings();
       }
     } else if (d.type === 'hello') {
-      // Okno pro projektor se ozve po načtení a pak pravidelně – i po obnovení hlavního okna.
+      // The projector window announces itself after loading and then periodically – also after the main window reloads.
       const isNew = audience !== e.source;
       audience = e.source;
       if (isNew || d.first) {
@@ -524,7 +530,7 @@
   if (IS_AUDIENCE) {
     post(window.opener, { type: 'hello', first: true });
     setInterval(function () { post(window.opener, { type: 'hello' }); }, 2000);
-    // Dvojklik přepne celou obrazovku (na projektoru).
+    // Double-click toggles fullscreen (on the projector).
     document.addEventListener('dblclick', function () {
       if (document.fullscreenElement) document.exitFullscreen();
       else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {});
@@ -533,7 +539,7 @@
     setInterval(updateAudienceUi, 1000);
   }
 
-  /* ---------- Klávesnice ---------- */
+  /* ---------- Keyboard ---------- */
 
   document.addEventListener('keydown', function (e) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -558,7 +564,7 @@
         e.preventDefault();
         if (supportVisible()) {
           supportPane.scrollBy({
-            top: (key === 'ArrowDown' ? 1 : -1) * (CFG.scrollStep || 80),
+            top: (key === 'ArrowDown' ? 1 : -1) * state.scrollStep,
             behavior: e.repeat ? 'auto' : 'smooth'
           });
         }
@@ -609,10 +615,16 @@
     });
     form.querySelector('output[for="split-ratio"]').value = state.splitRatio + ' : ' + (100 - state.splitRatio);
     form.querySelector('output[for="switch-threshold"]').value = state.switchThreshold + ' %';
+    form.querySelector('output[for="auto-scroll-speed"]').value = state.autoScrollSpeed + ' px/s';
+    form.querySelector('output[for="scroll-step"]').value = state.scrollStep + ' px';
   }
 
   form.elements.splitRatio.min = CFG.splitMin || 10;
   form.elements.splitRatio.max = CFG.splitMax || 90;
+  form.elements.autoScrollSpeed.min = SPEED_MIN;
+  form.elements.autoScrollSpeed.max = SPEED_MAX;
+  form.elements.scrollStep.min = STEP_MIN;
+  form.elements.scrollStep.max = STEP_MAX;
 
   form.addEventListener('input', function (e) {
     const input = e.target;
@@ -640,7 +652,7 @@
     else if (action.dataset.action === 'open-audience') openAudience();
     else if (action.dataset.action === 'reset') {
       Object.assign(state, sanitize(Object.assign({}, defaults)));
-      try { localStorage.removeItem(STORAGE_KEY); } catch (err) { /* bez úložiště */ }
+      try { localStorage.removeItem(STORAGE_KEY); } catch (err) { /* no storage */ }
       applySettings();
       scrollSupportTo(current, false);
       if (state.viewMode !== 'speaker') closeAudience();
@@ -648,7 +660,7 @@
     }
   });
 
-  /* ---------- Export pro tisk ---------- */
+  /* ---------- Print export ---------- */
 
   function clonePresent(i) {
     const c = pSlides[i].cloneNode(true);
@@ -702,7 +714,7 @@
 
     const printTheme = THEME_FILES[CFG.printTheme] ? CFG.printTheme : state.theme;
     const themeFile = THEME_FILES[printTheme];
-    // Vlastní styly prezentace (vše v <head> kromě base.css a stylu barevného režimu).
+    // The presentation's own styles (everything in <head> except base.css and the theme stylesheet).
     const baseHref = templateUrl('css/base.css');
     const extraCss = Array.prototype.map.call(
       document.querySelectorAll('head link[rel="stylesheet"]:not(#theme-css), head style'),
@@ -744,7 +756,8 @@
   current = fromHash >= 1 && fromHash <= total ? fromHash - 1 : 0;
   goTo(current, { smooth: false, updateHash: false, remote: true });
 
-  // Při změně velikosti (okno, rozdělení, načtení obrázků) zachovat polohu v podpůrné části.
+  // On resize (window, split, images loading) keep the position in the supporting part.
+
   if ('ResizeObserver' in window) {
     const ro = new ResizeObserver(restoreAnchor);
     ro.observe(supportPane);
